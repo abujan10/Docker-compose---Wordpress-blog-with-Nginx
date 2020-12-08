@@ -1,0 +1,72 @@
+version: "3"
+services:
+  
+  database:
+    
+    image: mysql:5.6
+    container_name: database
+    restart: always
+    networks:
+      - wpnet
+    volumes:
+      - mysql-vol:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=mysqlroot123
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=wpuser
+      - MYSQL_PASSWORD=wpuser123
+   
+        
+  wordpress1:
+    
+    image: wordpress:latest
+    container_name: wordpress-1
+    restart: always
+    networks:
+      - wpnet
+    volumes:
+      - wordpress-vol:/var/www/html
+      - ./test.php:/var/www/html/test.php
+    environment:
+      - WORDPRESS_DB_HOST=database
+      - WORDPRESS_DB_USER=wpuser
+      - WORDPRESS_DB_PASSWORD=wpuser123
+      - WORDPRESS_DB_NAME=wordpress
+      
+    
+    
+  wordpress2:
+    
+    image: wordpress:latest
+    container_name: wordpress-2
+    restart: always
+    networks:
+      - wpnet
+    volumes:
+      - wordpress-vol:/var/www/html
+      - ./test.php:/var/www/html/test.php
+    environment:
+      - WORDPRESS_DB_HOST=database
+      - WORDPRESS_DB_USER=wpuser
+      - WORDPRESS_DB_PASSWORD=wpuser123
+      - WORDPRESS_DB_NAME=wordpress
+        
+  loadbalancer:
+    
+    image: nginx:1.18.0-alpine
+    container_name: loadbalancer
+    restart: always
+    networks:
+      - wpnet
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
+        
+        
+networks:
+  wpnet:
+    
+volumes:
+  mysql-vol:
+  wordpress-vol:
